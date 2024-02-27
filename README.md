@@ -1,66 +1,70 @@
-# DevOps-Example
-This is a sample Spring Boot Application, used to explain the Jenkins pipeline, in creating a full CI/CD flow using docker too.
 
-# Jenkins 
-Jenkins is an open source automation server written in Java. Jenkins helps to automate the non-human part of the software development process,
- with continuous integration and facilitating technical aspects of continuous delivery. It is a server-based system that runs in servlet containers 
- such as Apache Tomcat.
- 
-# Docker 
+# TP DevOps
 
-Docker is a collection of interoperating software-as-a-service and platform-as-a-service offerings that employ operating-system-level virtualization 
-to cultivate development and delivery of software inside standardized software packages called containers. The software that hosts the containers 
-is called Docker Engine.
+Vous allez faire un TP DevOps
 
-# Using Jenkins with Docker
-First of all to use jenkins with docker, we will have to know that as we are running Jenkins inside a docker container, and we need access to docker to
-build our services images, so first of all let's build a Jenkins image with docker installed inside it. Let's check the dockerfile to 
-build this Jenkins image with docker inside, you will just have to put this file into any folder, and run the docker build command.
+# I- Sujet
 
-# Dockerfile for Jenkins
-```
-from jenkins/jenkins:lts
-USER root
-RUN apt-get update -qq \
-    && apt-get install -qqy apt-transport-https ca-certificates curl gnupg2 software-properties-common
-RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
-RUN add-apt-repository \
-   "deb [arch=amd64] https://download.docker.com/linux/debian \
-   $(lsb_release -cs) \
-   stable"
-RUN apt-get update  -qq \
-    && apt-get install docker-ce=17.12.1~ce-0~debian -y
-RUN usermod -aG docker jenkins
-```
+## GIT 
 
-Just place this Dockerfile in any folder and run the following commands:
+Créer un repo GIT
+Ajouter les branches "prod" et "dev"
+Charger sur la branche "dev" les fichiers du projet demo
 
-$ docker image build -t jenkins-docker .
+## Compilation
 
-Now that the docker image has already been built, we can run the Jenkins in a docker container with the command:
+Créer un job jenkins qui récupère le projet sur le repo GIT et démarre une compilation via maven.
 
-$ docker container run -d -p 8080:8080 -v /var/run/docker.sock:/var/run/docker.sock jenkins-docker
+Ce job doit:
+- Vérifier que le projet compile
+- Ne lance pas de tests
+- Publie la javadoc
+- Se lance toute les 3 min si changement du SCM
 
-# Building Spring Boot Application
-The Sample application built here has the maven jar plugin, so in order to build that as a jar, we just have to do the command:
+## Tests Maven
 
-$ mvn clean install
+Ajouter JUnit pour faire des tests dans le projet.
+Créer plusieurs tests quelques méthodes simples de calcul.
+- Integer add(integer a, integer b)
+- Integer multi(integer a, integer b)
+- Integer div(integer a, integer b)
+Dans un nouveau job Jenkins :
+- Vérifier que la compilation et les tests sont passants.
+- Modifier un test de manière à la faire échouer.
+- Vérifier que la compilation fonctionne et que le test remonte en KO.
+- Ignorer le test via Maven de façon à obtenir un build correct.
+- Publier le rapport de tests
 
-# Using with AWS ECS and ECR
 
-First of all you will have to push your image to Amazon ECR, so in order to do this via command line interface, we have to have
-the aws cli installed on our computer. After that we will have to synchronize the docker login with the AWS account, with the command:
+## SONAR
 
-$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+Installer SonarQube (docker compose) ou utiliser la version en ligne.
 
-After that you will sync the two accounts, and are able to build and push your image. So, just build the image:
+Lancer un SonarScanner sur le projet via jenkins en créant un nouveau job.
 
-$ docker build -t devops-service . 
+Parcourir le tableau de bord
 
-Tag you image:
+Modifier le projet de façon à faire varier les indicateurs et relancer une analyse:
+- Tests
+- Duplication
+- Violations
 
-$ docker tag devops-service:latest $AWS_IAM_USER_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/devops-service:latest
 
-Finally run thios command for pushing the image:
+# Fonctionnement
 
-docker push $AWS_IAM_USER_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/devops-service:latest
+Le projet est a faire seul.
+
+# Rendu
+
+Le rendu se fera le 27 février à 23h59 maxi.
+Toute absence de rendu entrainera un 0 (ZERO) pour le membre.
+
+Le rendu s'effectu via un repos GIT ou SVN. L'adresse du rendu est envoyé par mail.
+Le mail de rendu est vincent.leclerc@ynov.com
+Les fichiers rendus doivent contenir
+  - Les fichiers et documents techniques du TP.
+  - Le document récap de chaque étape du TP avec les résultats en screenshot.
+Le sujet du mail doit contenir votre section ainsi que le nom du projet.
+Les fichiers rendus peuvent aussi comprendre: 
+  - Des documents de recherche créés pour le projet et fournissant plus de détails pour l'enseignant.
+Pour tout autre type de fichier, veuillez demander à l'enseignant si son inclusion est appropriée.
